@@ -1,0 +1,75 @@
+---
+import TitleIcon from "@/icons/titleIcon.astro"
+import Puzzle from "@/icons/navbar/puzzle.astro"
+import Notebook from "@/icons/navbar/notebook.astro"
+import Play from "@/icons/navbar/play.astro"
+import Eye from "@/icons/navbar/eye.astro"
+import News from "@/icons/navbar/news.astro"
+import Users from "@/icons/navbar/users.astro"
+import Color from "@/icons/navbar/color.astro"
+import Minimize from "@/icons/navbar/minimize.astro"
+import Settings from "@/icons/navbar/settings.astro"
+import Help from "@/icons/navbar/help.astro"
+---
+
+<nav class="bg-slate-900 h-screen w-fit pr-10" >
+  <!-- container -->
+  <div class="flex flex-col w-full justify-center items-center text-white">
+
+    <!-- title -->
+    <div class="flex flex-row">
+      <TitleIcon></TitleIcon>
+      <h1 class="text-4xl mt-5  font-mono">Chess</h1>
+    </div>
+
+    <!-- opciones primarias -->
+    <div class="flex flex-col justify-center items-start gap-y-4 mt-10 text-xl">
+      <div class="cursor-pointer p-4 flex gap-x-2 flex-row justify-center items-center">
+        <Play></Play>
+        <a href="">Jugar</a>
+      </div>
+      <div class="cursor-pointer p-4 flex gap-x-2 flex-row justify-center items-center">
+        <Puzzle></Puzzle>
+        <a href="">Problemas</a>
+      </div>
+      <div class="cursor-pointer p-4 flex flex-row justify-center items-center gap-x-2">
+        <Notebook></Notebook>
+        <a href="">Aprender</a>
+      </div>
+      <div class="cursor-pointer p-4 flex flex-row justify-center items-center gap-x-2">
+        <Eye></Eye>
+        <a href="">Ver</a>
+      </div>
+      <div class="cursor-pointer p-4 flex flex-row justify-center items-center gap-x-2">
+        <News></News>
+        <a href="">Noticias</a>
+      </div>
+      <div class="cursor-pointer p-4 flex flex-row justify-center items-center gap-x-2">
+        <Users></Users>
+        <a href="">Comunidad</a>
+      </div>
+    </div>
+
+    <!-- últimas opciones configuracion -->
+    <div class="absolute bottom-5 flex flex-col justify-center items-start gap-y-2 text-lg text-gray-500">
+      <div class="flex flex-row justify-center items-center gap-x-2">
+        <Color></Color>
+        Color
+      </div>
+      <div class="flex flex-row justify-center items-center gap-x-2">
+        <Minimize></Minimize>
+        Contraer
+      </div>
+      <div class="flex flex-row justify-center items-center gap-x-2">
+        <Settings></Settings>
+        Configuracion
+      </div>
+      <div class="flex flex-row justify-center items-center gap-x-2">
+        <Help></Help>
+        Ayuda
+      </div>
+    </div>
+
+  <!-- end container -->
+  </div>
+</nav>
