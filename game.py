@@ -1,6 +1,7 @@
 import pygame
-from settings import ROWS, COLS, SQUARE_SIZE, WHITE, BLACK, highlighted_moves
+from settings import ROWS, COLS, SQUARE_SIZE, WHITE, BLACK
 from utils import load_images
+from movements import *
 
 
 class ChessGame:
@@ -105,18 +106,21 @@ class ChessGame:
         possible_moves = []
         row, col = position
 
-        # Ejemplo para un peón (puedes agregar lógica para otras piezas)
-        if piece.startswith("white_pawn"):
-            # Movimiento hacia adelante
-            if row > 0 and self.board[row - 1][col] is None:
-                possible_moves.append((row - 1, col))
-            if row == 6 and self.board[row - 2][col] is None:  # Movimiento doble
-                possible_moves.append((row - 2, col))
-        elif piece.startswith("black_pawn"):
-            # Movimiento hacia adelante
-            if row < 7 and self.board[row + 1][col] is None:
-                possible_moves.append((row + 1, col))
-            if row == 1 and self.board[row + 2][col] is None:  # Movimiento doble
-                possible_moves.append((row + 2, col))
+        if "pawn" in piece:
+            return get_pawn_moves(
+                piece, possible_moves, row, col, self.board)
 
-        return possible_moves
+        elif "knight" in piece:
+            return get_knight_moves(piece, possible_moves, row, col, self.board)
+
+        elif "rook" in piece:
+            return get_rook_moves(piece, possible_moves, row, col, self.board)
+
+        elif "bishop" in piece:
+            return get_bishop_moves(piece, possible_moves, row, col, self.board)
+
+        elif "queen" in piece:
+            return get_queen_moves(piece, possible_moves, row, col, self.board)
+
+        elif "king" in piece:
+            return get_king_moves(piece, possible_moves, row, col, self.board)
