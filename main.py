@@ -6,8 +6,8 @@ from button import Button
 
 def main():
     screen, game, clock = getConf()
-
     game_state = 'menu'
+    difficulty = None
 
     # Crear botones en el estado menu
     pvp_button = Button(center_x, HEIGHT//2 - button_height - 20,
@@ -20,12 +20,27 @@ def main():
                         "JUGADOR vs CPU",
                         primary_color, secondary_color)
 
+    difficulty_buttons = []
+    for i, (diff_key, diff_data) in enumerate(DIFFICULTY.items()):
+        y_pos = HEIGHT//4 + i*100  # Más espacio entre botones
+        button = Button(center_x, y_pos,
+                        button_width, button_height,
+                        diff_data['name'],
+                        diff_data['color'],
+                        diff_data['hover_color'])
+        difficulty_buttons.append((diff_key, button))
     highlighted_moves = []
     selected_piece = None
 
     while True:
         if game_state == 'menu':  # Dibujar menú
             screen.fill(background_color)
+
+            # Dibujar título
+            font = pygame.font.Font(None, 74)
+            title = font.render("Ajedrez", True, (255, 255, 255))
+            title_rect = title.get_rect(center=(WIDTH//2, 100))
+            screen.blit(title, title_rect)
 
             # Dibujar botones
             pvp_button.draw(screen)
@@ -39,8 +54,41 @@ def main():
                 if pvp_button.handle_event(event):
                     game_state = 'pvp'
                 if pvc_button.handle_event(event):
-                    game_state = 'pvc'
+                    game_state = 'difficulty_select'
 
+        elif game_state == 'difficulty_select':
+            screen.fill(background_color)
+
+            # Dibujar título
+            font = pygame.font.Font(None, 74)
+            title = font.render("Selecciona Dificultad", True, (255, 255, 255))
+            title_rect = title.get_rect(center=(WIDTH//2, 100))
+            screen.blit(title, title_rect)
+
+            # Dibujar botones y descripciones
+            font_desc = pygame.font.Font(None, 28)
+            for diff_key, button in difficulty_buttons:
+                button.draw(screen)
+                # Dibujar descripción debajo del botón
+                desc = font_desc.render(DIFFICULTY[diff_key]['description'],
+                                        True, (200, 200, 200))
+                desc_rect = desc.get_rect(
+                    center=(WIDTH//2, button.rect.bottom + 10))
+                screen.blit(desc, desc_rect)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        game_state = 'menu'
+
+                # Manejar clicks en botones de dificultad
+                for diff_key, button in difficulty_buttons:
+                    if button.handle_event(event):
+                        # Crear nuevo juego con modo y dificultad
+                        game = ChessGame(screen, 'pvc', diff_key)
+                        game_state = 'pvc'
         else:
             game.draw_board()
             game.draw_pieces()
@@ -75,7 +123,7 @@ def main():
                         elif piece:
                             selected_piece = (row, col)
                             highlighted_moves = game.get_possible_moves(
-                                piece, selected_piece, game_state)
+                                piece, selected_piece)
 
             draw_highlighted_moves(screen, highlighted_moves)
 
@@ -102,7 +150,7 @@ def getConf():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Ajedrez")
-    game = ChessGame(screen)
+    game = ChessGame(screen)  # El modo por defecto será 'pvp'
     clock = pygame.time.Clock()
     return screen, game, clock
 

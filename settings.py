@@ -40,3 +40,34 @@ rook_moves = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 # Tiempo inicial para cada jugador (en segundos)
 INITIAL_TIME = 600  # 10 minutos
+
+DIFFICULTY = {
+    'FÁCIL': {
+        'name': "PRINCIPIANTE",
+        'depth': 2,
+        'description': "Para jugadores nuevos",
+        'color': (46, 139, 87),  # Verde suave
+        'hover_color': (32, 178, 170)  # Turquesa
+    },
+    'MEDIO': {
+        'name': "INTERMEDIO",
+        'depth': 3,
+        'description': "Para jugadores casuales",
+        'color': (25, 25, 112),  # Azul marino
+        'hover_color': (65, 105, 225)  # Azul real
+    },
+    'DIFÍCIL': {
+        'name': "AVANZADO",
+        'depth': 4,
+        'description': "Para jugadores experimentados",
+        'color': (139, 0, 0),  # Rojo oscuro
+        'hover_color': (178, 34, 34)  # Rojo fuego
+    },
+    'MAESTRO': {
+        'name': "MAESTRO",
+        'depth': 5,
+        'description': "Para expertos",
+        'color': (72, 61, 139),  # Violeta oscuro
+        'hover_color': (106, 90, 205)  # Violeta claro
+    }
+}
