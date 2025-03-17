@@ -4,3 +4,6 @@ SQUARE_SIZE = WIDTH // COLS
 
 WHITE = (240, 217, 181)
 BLACK = (181, 136, 99)
+HIGHLIGHT_COLOR = (255, 255, 255)
+
+highlighted_moves = {}

@@ -1,5 +1,5 @@
 import pygame
-from settings import ROWS, COLS, SQUARE_SIZE, WHITE, BLACK
+from settings import ROWS, COLS, SQUARE_SIZE, WHITE, BLACK, highlighted_moves
 from utils import load_images
 
 
@@ -27,13 +27,13 @@ class ChessGame:
         """
         Crea y devuelve la configuración inicial del tablero de ajedrez.
 
-        El tablero se representa como una lista de listas, donde cada lista 
-        interna representa una fila en el tablero de ajedrez. Cada pieza se 
-        representa con una cadena en el formato 'color_pieza', y las casillas 
+        El tablero se representa como una lista de listas, donde cada lista
+        interna representa una fila en el tablero de ajedrez. Cada pieza se
+        representa con una cadena en el formato 'color_pieza', y las casillas
         vacías se representan con None.
 
         Returns:
-            list: Una lista 2D que representa las posiciones iniciales de todas 
+            list: Una lista 2D que representa las posiciones iniciales de todas
             las piezas en un tablero de ajedrez.
         """
         return [
@@ -70,7 +70,7 @@ class ChessGame:
         """
         Dibuja las piezas en el tablero de ajedrez.
 
-        Recorre cada celda del tablero y, si hay una pieza en esa celda, 
+        Recorre cada celda del tablero y, si hay una pieza en esa celda,
         dibuja la imagen correspondiente en la pantalla.
 
         Parámetros:
@@ -84,10 +84,39 @@ class ChessGame:
         - self.screen: superficie donde se dibujan las piezas.
         - self.pieces_images: diccionario que mapea cada pieza a su imagen correspondiente.
         """
-        # iteramos filas y columnas si la pieza debe estar colocada en el tablero lo colocamos
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board[row][col]
                 if piece:
                     self.screen.blit(
                         self.pieces_images[piece], (col * SQUARE_SIZE, row * SQUARE_SIZE))
+
+    def get_possible_moves(self, piece, position):
+        """
+        Devuelve una lista de movimientos posibles para una pieza dada.
+
+        Parámetros:
+        - piece: La pieza para la que se calculan los movimientos.
+        - position: La posición actual de la pieza en el formato (fila, columna).
+
+        Returns:
+            list: Una lista de posiciones (fila, columna) que son movimientos válidos.
+        """
+        possible_moves = []
+        row, col = position
+
+        # Ejemplo para un peón (puedes agregar lógica para otras piezas)
+        if piece.startswith("white_pawn"):
+            # Movimiento hacia adelante
+            if row > 0 and self.board[row - 1][col] is None:
+                possible_moves.append((row - 1, col))
+            if row == 6 and self.board[row - 2][col] is None:  # Movimiento doble
+                possible_moves.append((row - 2, col))
+        elif piece.startswith("black_pawn"):
+            # Movimiento hacia adelante
+            if row < 7 and self.board[row + 1][col] is None:
+                possible_moves.append((row + 1, col))
+            if row == 1 and self.board[row + 2][col] is None:  # Movimiento doble
+                possible_moves.append((row + 2, col))
+
+        return possible_moves
