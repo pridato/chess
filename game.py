@@ -124,3 +124,18 @@ class ChessGame:
 
         elif "king" in piece:
             return get_king_moves(piece, possible_moves, row, col, self.board)
+
+    def move_piece(self, start_pos, end_pos):
+        """
+        Mueve una pieza de una posición a otra en el tablero.
+
+        Parámetros:
+        - start_pos: La posición inicial de la pieza en el formato (fila, columna).
+        - end_pos: La posición final a la que se moverá la pieza en el formato (fila, columna).
+        """
+        start_row, start_col = start_pos
+        end_row, end_col = end_pos
+
+        # Mover la pieza
+        self.board[end_row][end_col] = self.board[start_row][start_col]
+        self.board[start_row][start_col] = None

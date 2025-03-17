@@ -85,6 +85,8 @@ def get_rook_moves(piece, possible_moves, row, col, board):
             else:  # Si la nueva posición está fuera del tablero, se detiene aquí
                 break
 
+    return possible_moves
+
 
 def get_bishop_moves(piece, possible_moves, row, col, board):
     """
@@ -116,6 +118,8 @@ def get_bishop_moves(piece, possible_moves, row, col, board):
             else:  # Si la nueva posición está fuera del tablero, se detiene aquí
                 break
 
+    return possible_moves
+
 
 def get_queen_moves(piece, possible_moves, row, col, board):
     """
@@ -132,10 +136,12 @@ def get_queen_moves(piece, possible_moves, row, col, board):
     Las reinas pueden moverse en cualquier dirección (horizontal, vertical o diagonal) cualquier número de casillas,
     siempre y cuando no haya otra pieza del mismo color en el camino.
     """
-    get_rook_moves(piece, possible_moves, row, col,
-                   board)  # Movimientos de torre
-    get_bishop_moves(piece, possible_moves, row, col,
-                     board)  # Movimientos de alfil
+    possible_moves = get_rook_moves(piece, possible_moves, row, col,
+                                    board)  # Movimientos de torre
+    possible_moves = get_bishop_moves(piece, possible_moves, row, col,
+                                      board)  # Movimientos de alfil
+
+    return possible_moves
 
 
 def get_king_moves(piece, possible_moves, row, col, board):
@@ -157,3 +163,5 @@ def get_king_moves(piece, possible_moves, row, col, board):
         if 0 <= new_row < 8 and 0 <= new_col < 8:
             if board[new_row][new_col] is None or board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
                 possible_moves.append((new_row, new_col))
+
+    return possible_moves

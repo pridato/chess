@@ -7,6 +7,7 @@ def main():
     screen, game, clock = getConf()
 
     highlighted_moves = []  # Inicializar la lista de movimientos destacados
+    selected_piece = None  # Para almacenar la pieza seleccionada
 
     while True:
 
@@ -23,9 +24,19 @@ def main():
                 row = mouse_y // SQUARE_SIZE
 
                 piece = game.board[row][col]
-                if piece:
+                print(piece)
+
+                if selected_piece:  # Si el clic es en un movimiento posible
+                    if highlighted_moves and (row, col) in highlighted_moves:
+                        game.move_piece(selected_piece, (row, col))
+
+                    selected_piece = None  # Reiniciar la selección
+                    highlighted_moves = []  # Limpiar los movimientos destacados
+
+                elif piece:
+                    selected_piece = (row, col)
                     highlighted_moves = game.get_possible_moves(
-                        piece, (row, col))
+                        piece, selected_piece)
 
         draw_highlighted_moves(screen, highlighted_moves)
 
