@@ -1,5 +1,5 @@
 import pygame
-from settings import ROWS, COLS, SQUARE_SIZE, WHITE, BLACK
+from settings import *
 from utils import load_images
 from movements import *
 
@@ -23,6 +23,65 @@ class ChessGame:
         self.screen = screen
         self.board = self.create_start_board()
         self.pieces_images = load_images()
+        self.white_time = 600
+        self.black_time = 600
+        self.current_player = 'white'
+        self.last_time_update = pygame.time.get_ticks()  # tiempo en milisegundos
+
+    def update_time(self):
+        """
+        Actualiza el tiempo restante para el jugador actual.
+
+        Esta función calcula el tiempo transcurrido desde la última actualización y lo resta del tiempo total del jugador actual. El tiempo restante se almacena en `self.white_time` o `self.black_time`, dependiendo del jugador actual.
+
+        """
+        current_time = pygame.time.get_ticks()
+        elapsed = (current_time - self.last_time_update) / \
+            1000  # Convertir a segundos
+
+        if self.current_player == 'white':
+            self.white_time -= elapsed
+        else:
+            self.black_time -= elapsed
+
+        self.last_time_update = current_time
+
+    def switch_player(self):
+        """
+        Cambia el jugador actual.
+
+        Esta función cambia el jugador actual de 'white' a 'black' o viceversa. También actualiza el tiempo de la última actualización.
+        """
+        self.current_player = 'white' if self.current_player == 'black' else 'black'
+        self.last_time_update = pygame.time.get_ticks()
+
+    def draw_time(self):
+        """
+        Dibuja los temporizadores en la parte superior de la pantalla.
+        """
+        # Dibujar fondo para el tiempo
+        time_rect = pygame.Rect(0, 0, WIDTH, TIME_HEIGHT)
+        pygame.draw.rect(self.screen, background_color, time_rect)
+
+        font = pygame.font.Font(None, 36)
+
+        # Formato mm:ss
+        white_minutes = int(self.white_time // 60)
+        white_seconds = int(self.white_time % 60)
+        black_minutes = int(self.black_time // 60)
+        black_seconds = int(self.black_time % 60)
+
+        # Textos de tiempo
+        white_text = f"Blancas: {white_minutes:02d}:{white_seconds:02d}"
+        black_text = f"Negras: {black_minutes:02d}:{black_seconds:02d}"
+
+        # Renderizar textos
+        white_surface = font.render(white_text, True, (255, 255, 255))
+        black_surface = font.render(black_text, True, (255, 255, 255))
+
+        # Posicionar en la parte superior
+        self.screen.blit(white_surface, (20, TIME_HEIGHT//2 - 15))
+        self.screen.blit(black_surface, (WIDTH - 170, TIME_HEIGHT//2 - 15))
 
     def create_start_board(self):
         """
@@ -52,45 +111,28 @@ class ChessGame:
 
     def draw_board(self):
         """
-        Dibuja el tablero de ajedrez en la pantalla.
-
-        Recorre cada fila y columna del tablero, alternando los colores de las casillas
-        entre blanco y negro. Utiliza la librería pygame para dibujar los rectángulos
-        que representan las casillas del tablero.
-
+        Dibuja el tablero de ajedrez en la pantalla, con el margen superior ajustado.
         """
-
-        # recorremos filas y columnas e intercalamos casillas blancas y negras
         for row in range(ROWS):
             for col in range(COLS):
                 color = WHITE if (row + col) % 2 == 0 else BLACK
-                pygame.draw.rect(self.screen, color, (col * SQUARE_SIZE,
-                                 row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                pygame.draw.rect(self.screen, color,
+                                 (col * SQUARE_SIZE,
+                                  row * SQUARE_SIZE + MARGIN_TOP,  # Usar MARGIN_TOP
+                                  SQUARE_SIZE, SQUARE_SIZE))
 
     def draw_pieces(self):
         """
-        Dibuja las piezas en el tablero de ajedrez.
-
-        Recorre cada celda del tablero y, si hay una pieza en esa celda,
-        dibuja la imagen correspondiente en la pantalla.
-
-        Parámetros:
-        - self: referencia a la instancia actual del objeto.
-
-        Variables:
-        - ROWS: número de filas en el tablero.
-        - COLS: número de columnas en el tablero.
-        - SQUARE_SIZE: tamaño de cada celda del tablero.
-        - self.board: matriz que representa el tablero de ajedrez.
-        - self.screen: superficie donde se dibujan las piezas.
-        - self.pieces_images: diccionario que mapea cada pieza a su imagen correspondiente.
+        Dibuja las piezas en el tablero, ajustando la posición vertical.
         """
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board[row][col]
                 if piece:
                     self.screen.blit(
-                        self.pieces_images[piece], (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                        self.pieces_images[piece],
+                        (col * SQUARE_SIZE,
+                         row * SQUARE_SIZE + MARGIN_TOP))  # Usar MARGIN_TOP
 
     def get_possible_moves(self, piece, position, game_state):
         """
