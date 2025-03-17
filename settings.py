@@ -21,3 +21,13 @@ king_moves = [
 ]
 
 rook_moves = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+# BUTTON
+
+primary_color = (48, 46, 43)       # Gris oscuro
+secondary_color = (75, 73, 70)     # Gris más claro para hover
+background_color = (28, 27, 24)    # Casi negro para el fondo
+
+button_width = 280
+button_height = 60
+center_x = WIDTH // 2 - button_width // 2

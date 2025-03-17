@@ -92,7 +92,7 @@ class ChessGame:
                     self.screen.blit(
                         self.pieces_images[piece], (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
-    def get_possible_moves(self, piece, position):
+    def get_possible_moves(self, piece, position, game_state):
         """
         Devuelve una lista de movimientos posibles para una pieza dada.
 
@@ -108,22 +108,22 @@ class ChessGame:
 
         if "pawn" in piece:
             return get_pawn_moves(
-                piece, possible_moves, row, col, self.board)
+                piece, possible_moves, row, col, self.board, game_state)
 
         elif "knight" in piece:
-            return get_knight_moves(piece, possible_moves, row, col, self.board)
+            return get_knight_moves(piece, possible_moves, row, col, self.board, game_state)
 
         elif "rook" in piece:
-            return get_rook_moves(piece, possible_moves, row, col, self.board)
+            return get_rook_moves(piece, possible_moves, row, col, self.board, game_state)
 
         elif "bishop" in piece:
-            return get_bishop_moves(piece, possible_moves, row, col, self.board)
+            return get_bishop_moves(piece, possible_moves, row, col, self.board, game_state)
 
         elif "queen" in piece:
-            return get_queen_moves(piece, possible_moves, row, col, self.board)
+            return get_queen_moves(piece, possible_moves, row, col, self.board, game_state)
 
         elif "king" in piece:
-            return get_king_moves(piece, possible_moves, row, col, self.board)
+            return get_king_moves(piece, possible_moves, row, col, self.board, game_state)
 
     def move_piece(self, start_pos, end_pos):
         """

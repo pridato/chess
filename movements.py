@@ -1,7 +1,7 @@
 from settings import knight_moves, rook_moves, bishop_moves, king_moves
 
 
-def get_pawn_moves(piece, possible_moves, row, col, board):
+def get_pawn_moves(piece, possible_moves, row, col, board, game_state):
     """
     Calcula los movimientos posibles para un peón en una posición dada.
 
@@ -14,6 +14,7 @@ def get_pawn_moves(piece, possible_moves, row, col, board):
 
     Esta función determina los movimientos posibles para un peón, considerando su color y posición en el tablero.
     Los peones pueden moverse una o dos casillas hacia adelante si la casilla está vacía, dependiendo de si están en su posición inicial.
+    También pueden comerse una pieza del color opuesto si está en diagonal.
     """
     if piece.startswith("white"):
         # Movimiento hacia adelante
@@ -21,17 +22,27 @@ def get_pawn_moves(piece, possible_moves, row, col, board):
             possible_moves.append((row - 1, col))
         if row == 6 and board[row - 2][col] is None:  # Movimiento doble
             possible_moves.append((row - 2, col))
-    elif piece.startswith("black"):
+        # Comer pieza negra en diagonal
+        if row > 0 and col > 0 and board[row - 1][col - 1] is not None and board[row - 1][col - 1].startswith("black"):
+            possible_moves.append((row - 1, col - 1))
+        if row > 0 and col < 7 and board[row - 1][col + 1] is not None and board[row - 1][col + 1].startswith("black"):
+            possible_moves.append((row - 1, col + 1))
+    elif piece.startswith("black") and game_state == 'pvp':
         # Movimiento hacia adelante
         if row < 7 and board[row + 1][col] is None:
             possible_moves.append((row + 1, col))
         if row == 1 and board[row + 2][col] is None:  # Movimiento doble
             possible_moves.append((row + 2, col))
+        # Comer pieza blanca en diagonal
+        if row < 7 and col > 0 and board[row + 1][col - 1] is not None and board[row + 1][col - 1].startswith("white"):
+            possible_moves.append((row + 1, col - 1))
+        if row < 7 and col < 7 and board[row + 1][col + 1] is not None and board[row + 1][col + 1].startswith("white"):
+            possible_moves.append((row + 1, col + 1))
 
     return possible_moves
 
 
-def get_knight_moves(piece, possible_moves, row, col, board):
+def get_knight_moves(piece, possible_moves, row, col, board, game_state):
     """
     Calcula los movimientos posibles para un caballo en una posición dada.
 
@@ -41,20 +52,21 @@ def get_knight_moves(piece, possible_moves, row, col, board):
     - row (int): La fila actual de la pieza en el tablero.
     - col (int): La columna actual de la pieza en el tablero.
     - board (list): La representación del tablero de ajedrez como una lista de listas.
+    - game_state (str): El estado del juego, que puede ser 'pvp' o 'pvc'.
 
-    Esta función determina los movimientos posibles para un caballo, considerando su color y posición en el tablero.
+    Esta función determina los movimientos posibles para un caballo, considerando su color, posición en el tablero y el estado del juego.
     Los caballos pueden moverse en forma de L (dos casillas en una dirección y una en otra perpendicular).
     """
     for move in knight_moves:
         new_row, new_col = row + move[0], col + move[1]
         if 0 <= new_row < 8 and 0 <= new_col < 8:
-            if board[new_row][new_col] is None or board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
+            if board[new_row][new_col] is None or (game_state == 'pvp' and board[new_row][new_col].startswith("black" if piece.startswith("white") else "white")):
                 possible_moves.append((new_row, new_col))
 
     return possible_moves
 
 
-def get_rook_moves(piece, possible_moves, row, col, board):
+def get_rook_moves(piece, possible_moves, row, col, board, game_state):
     """
     Calcula los movimientos posibles para una torre en una posición dada.
 
@@ -77,7 +89,7 @@ def get_rook_moves(piece, possible_moves, row, col, board):
                 if board[new_row][new_col] is None:
                     possible_moves.append((new_row, new_col))
                 # Si la casilla contiene una pieza del color opuesto, es un movimiento válido y se detiene aquí
-                elif board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
+                elif game_state == 'pvp' and board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
                     possible_moves.append((new_row, new_col))
                     break
                 else:  # Si la casilla contiene una pieza del mismo color, se detiene aquí
@@ -88,7 +100,7 @@ def get_rook_moves(piece, possible_moves, row, col, board):
     return possible_moves
 
 
-def get_bishop_moves(piece, possible_moves, row, col, board):
+def get_bishop_moves(piece, possible_moves, row, col, board, game_state="pvc"):
     """
     Calcula los movimientos posibles para un alfil en una posición dada.
 
@@ -110,7 +122,7 @@ def get_bishop_moves(piece, possible_moves, row, col, board):
                 if board[new_row][new_col] is None:
                     possible_moves.append((new_row, new_col))
                 # Si la casilla contiene una pieza del color opuesto, es un movimiento válido y se detiene aquí
-                elif board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
+                elif game_state == 'pvp' and board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
                     possible_moves.append((new_row, new_col))
                     break
                 else:  # Si la casilla contiene una pieza del mismo color, se detiene aquí
@@ -121,7 +133,7 @@ def get_bishop_moves(piece, possible_moves, row, col, board):
     return possible_moves
 
 
-def get_queen_moves(piece, possible_moves, row, col, board):
+def get_queen_moves(piece, possible_moves, row, col, board, game_state='pvc'):
     """
     Calcula los movimientos posibles para una reina en una posición dada.
 
@@ -137,14 +149,14 @@ def get_queen_moves(piece, possible_moves, row, col, board):
     siempre y cuando no haya otra pieza del mismo color en el camino.
     """
     possible_moves = get_rook_moves(piece, possible_moves, row, col,
-                                    board)  # Movimientos de torre
+                                    board, game_state)  # Movimientos de torre
     possible_moves = get_bishop_moves(piece, possible_moves, row, col,
-                                      board)  # Movimientos de alfil
+                                      board, game_state)  # Movimientos de alfil
 
     return possible_moves
 
 
-def get_king_moves(piece, possible_moves, row, col, board):
+def get_king_moves(piece, possible_moves, row, col, board, game_state):
     """
     Calcula los movimientos posibles para un rey en una posición dada.
 
@@ -161,7 +173,7 @@ def get_king_moves(piece, possible_moves, row, col, board):
     for move in king_moves:
         new_row, new_col = row + move[0], col + move[1]
         if 0 <= new_row < 8 and 0 <= new_col < 8:
-            if board[new_row][new_col] is None or board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
+            if board[new_row][new_col] is None and game_state == 'pvp' or board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
                 possible_moves.append((new_row, new_col))
 
     return possible_moves
