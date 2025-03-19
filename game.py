@@ -195,13 +195,29 @@ class ChessGame:
 
     def move_piece(self, start_pos, end_pos):
         """
-        Mueve una pieza y actualiza el estado del juego.
+        Mueve una pieza y maneja el enroque si es necesario
         """
         start_row, start_col = start_pos
         end_row, end_col = end_pos
 
-        # Mover la pieza
-        self.board[end_row][end_col] = self.board[start_row][start_col]
+        moving_piece = self.board[start_row][start_col]
+
+        # Verificar si es un enroque
+        if moving_piece and "king" in moving_piece:
+            # Enroque corto
+            if end_col - start_col == 2:
+                # Mover la torre
+                self.board[end_row][end_col-1] = self.board[end_row][7]
+                self.board[end_row][7] = None
+
+            # Enroque largo
+            elif end_col - start_col == -2:
+                # Mover la torre
+                self.board[end_row][end_col+1] = self.board[end_row][0]
+                self.board[end_row][0] = None
+
+        # Realizar el movimiento normal
+        self.board[end_row][end_col] = moving_piece
         self.board[start_row][start_col] = None
 
         # Si estamos en modo PvC, actualizar el estado del motor de IA

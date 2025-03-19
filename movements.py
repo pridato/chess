@@ -179,23 +179,10 @@ def get_queen_moves(piece, possible_moves, row, col, board, game_state='pvc'):
 
 
 def get_king_moves(piece, possible_moves, row, col, board, game_state):
-    """
-    Calcula los movimientos posibles para un rey en una posición dada.
-    En modo PvC, solo permite mover piezas blancas.
-
-    Parámetros:
-    - piece (str): El nombre de la pieza, que indica si es un rey blanco o negro.
-    - possible_moves (list): La lista de movimientos posibles que se van a calcular.
-    - row (int): La fila actual del rey en el tablero.
-    - col (int): La columna actual del rey en el tablero.
-    - board (list): La representación del tablero de ajedrez como una lista de listas.
-
-    Esta función determina los movimientos posibles para un rey, considerando su color y posición en el tablero.
-    Los reyes pueden moverse una casilla en cualquier dirección (horizontal, vertical o diagonal), siempre y cuando no haya otra pieza del mismo color en el camino.
-    """
     if game_state == 'pvc' and piece.startswith("black"):
         return possible_moves
 
+    # Movimientos normales del rey
     for move in king_moves:
         new_row, new_col = row + move[0], col + move[1]
         if 0 <= new_row < 8 and 0 <= new_col < 8:
@@ -204,4 +191,61 @@ def get_king_moves(piece, possible_moves, row, col, board, game_state):
                     target.startswith("black" if piece.startswith("white") else "white")):
                 possible_moves.append((new_row, new_col))
 
+    # Verificar enroque
+    if can_castle(piece, row, col, board):
+        # Posición inicial del rey
+        initial_row = 7 if piece.startswith("white") else 0
+
+        # Enroque corto (lado del rey)
+        if can_castle_kingside(piece, initial_row, board):
+            possible_moves.append((initial_row, 6))  # Nueva posición del rey
+
+        # Enroque largo (lado de la reina)
+        if can_castle_queenside(piece, initial_row, board):
+            possible_moves.append((initial_row, 2))  # Nueva posición del rey
+
     return possible_moves
+
+
+def can_castle(piece, row, col, board):
+    """
+    Verifica si el rey está en su posición inicial para el enroque
+    """
+    # El rey debe estar en su posición inicial
+    initial_row = 7 if piece.startswith("white") else 0
+    initial_col = 4
+
+    return row == initial_row and col == initial_col
+
+
+def can_castle_kingside(piece, initial_row, board):
+    """
+    Verifica si es posible hacer enroque corto
+    """
+    # Verificar que las casillas entre el rey y la torre estén vacías
+    if (board[initial_row][5] is None and
+        board[initial_row][6] is None and
+            board[initial_row][7] is not None):
+
+        # Verificar que la torre esté en su lugar
+        tower = "white_rook" if piece.startswith("white") else "black_rook"
+        return board[initial_row][7] == tower
+
+    return False
+
+
+def can_castle_queenside(piece, initial_row, board):
+    """
+    Verifica si es posible hacer enroque largo
+    """
+    # Verificar que las casillas entre el rey y la torre estén vacías
+    if (board[initial_row][3] is None and
+        board[initial_row][2] is None and
+        board[initial_row][1] is None and
+            board[initial_row][0] is not None):
+
+        # Verificar que la torre esté en su lugar
+        tower = "white_rook" if piece.startswith("white") else "black_rook"
+        return board[initial_row][0] == tower
+
+    return False
