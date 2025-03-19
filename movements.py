@@ -18,33 +18,34 @@ def get_pawn_moves(piece, possible_moves, row, col, board, game_state):
     También pueden comerse una pieza del color opuesto si está en diagonal.
     """
     # Si es modo PvC y es una pieza negra, no permitir movimientos
+    moves = possible_moves
     if game_state == 'pvc' and piece.startswith("black"):
         return possible_moves
 
-    if piece.startswith("white"):
-        # Movimiento hacia adelante
-        if row > 0 and board[row - 1][col] is None:
-            possible_moves.append((row - 1, col))
-        if row == 6 and board[row - 2][col] is None:  # Movimiento doble
-            possible_moves.append((row - 2, col))
-        # Comer pieza negra en diagonal
-        if row > 0 and col > 0 and board[row - 1][col - 1] is not None and board[row - 1][col - 1].startswith("black"):
-            possible_moves.append((row - 1, col - 1))
-        if row > 0 and col < 7 and board[row - 1][col + 1] is not None and board[row - 1][col + 1].startswith("black"):
-            possible_moves.append((row - 1, col + 1))
-    elif piece.startswith("black") and game_state == 'pvp':
-        # Movimiento hacia adelante
-        if row < 7 and board[row + 1][col] is None:
-            possible_moves.append((row + 1, col))
-        if row == 1 and board[row + 2][col] is None:  # Movimiento doble
-            possible_moves.append((row + 2, col))
-        # Comer pieza blanca en diagonal
-        if row < 7 and col > 0 and board[row + 1][col - 1] is not None and board[row + 1][col - 1].startswith("white"):
-            possible_moves.append((row + 1, col - 1))
-        if row < 7 and col < 7 and board[row + 1][col + 1] is not None and board[row + 1][col + 1].startswith("white"):
-            possible_moves.append((row + 1, col + 1))
+    direction = 1 if piece.startswith('black') else -1
+    enemy_color = 'white' if piece.startswith('black') else 'black'
 
-    return possible_moves
+    # Movimiento hacia adelante
+    if 0 <= row + direction < 8:
+        # Movimiento simple hacia adelante si no hay pieza
+        if not board[row + direction][col]:
+            moves.append((row + direction, col))
+
+            # Movimiento doble desde la posición inicial
+            initial_row = 1 if piece.startswith('black') else 6
+            if row == initial_row and not board[row + 2*direction][col]:
+                moves.append((row + 2*direction, col))
+
+    # Capturas diagonales
+    for dx in [-1, 1]:  # Revisar ambas diagonales
+        new_col = col + dx
+        new_row = row + direction
+        if 0 <= new_row < 8 and 0 <= new_col < 8:  # Dentro del tablero
+            target_piece = board[new_row][new_col]
+            if target_piece and target_piece.startswith(enemy_color):
+                moves.append((new_row, new_col))
+
+    return moves
 
 
 def get_knight_moves(piece, possible_moves, row, col, board, game_state):
@@ -63,14 +64,15 @@ def get_knight_moves(piece, possible_moves, row, col, board, game_state):
     Esta función determina los movimientos posibles para un caballo, considerando su color, posición en el tablero y el estado del juego.
     Los caballos pueden moverse en forma de L (dos casillas en una dirección y una en otra perpendicular).
     """
-    # Si es modo PvC y es una pieza negra, no permitir movimientos
     if game_state == 'pvc' and piece.startswith("black"):
         return possible_moves
 
     for move in knight_moves:
         new_row, new_col = row + move[0], col + move[1]
         if 0 <= new_row < 8 and 0 <= new_col < 8:
-            if board[new_row][new_col] is None or (game_state == 'pvp' and board[new_row][new_col].startswith("black" if piece.startswith("white") else "white")):
+            # Permitir movimiento si la casilla está vacía o tiene una pieza enemiga
+            if (board[new_row][new_col] is None or
+                    board[new_row][new_col].startswith("black" if piece.startswith("white") else "white")):
                 possible_moves.append((new_row, new_col))
 
     return possible_moves
@@ -91,24 +93,22 @@ def get_rook_moves(piece, possible_moves, row, col, board, game_state):
     Esta función determina los movimientos posibles para una torre, considerando su color y posición en el tablero.
     Las torres pueden moverse horizontal o verticalmente cualquier número de casillas, siempre y cuando no haya otra pieza del mismo color en el camino.
     """
-    # Si es modo PvC y es una pieza negra, no permitir movimientos
     if game_state == 'pvc' and piece.startswith("black"):
         return possible_moves
 
     for direction in rook_moves:
-        for i in range(1, 8):  # Máximo de 7 casillas en cualquier dirección
+        for i in range(1, 8):
             new_row, new_col = row + direction[0] * i, col + direction[1] * i
-            if 0 <= new_row < 8 and 0 <= new_col < 8:  # Verificar si la nueva posición está dentro del tablero
-                # Si la casilla está vacía, es un movimiento válido
-                if board[new_row][new_col] is None:
+            if 0 <= new_row < 8 and 0 <= new_col < 8:
+                target = board[new_row][new_col]
+                if target is None:
                     possible_moves.append((new_row, new_col))
-                # Si la casilla contiene una pieza del color opuesto, es un movimiento válido y se detiene aquí
-                elif game_state == 'pvp' and board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
+                elif target.startswith("black" if piece.startswith("white") else "white"):
                     possible_moves.append((new_row, new_col))
                     break
-                else:  # Si la casilla contiene una pieza del mismo color, se detiene aquí
+                else:
                     break
-            else:  # Si la nueva posición está fuera del tablero, se detiene aquí
+            else:
                 break
 
     return possible_moves
@@ -129,24 +129,22 @@ def get_bishop_moves(piece, possible_moves, row, col, board, game_state="pvc"):
     Esta función determina los movimientos posibles para un alfil, considerando su color y posición en el tablero.
     Los alfiles pueden moverse en diagonal cualquier número de casillas, siempre y cuando no haya otra pieza del mismo color en el camino.
     """
-    # Si es modo PvC y es una pieza negra, no permitir movimientos
     if game_state == 'pvc' and piece.startswith("black"):
         return possible_moves
 
     for direction in bishop_moves:
-        for i in range(1, 8):  # Máximo de 7 casillas en cualquier dirección
+        for i in range(1, 8):
             new_row, new_col = row + direction[0] * i, col + direction[1] * i
-            if 0 <= new_row < 8 and 0 <= new_col < 8:  # Verificar si la nueva posición está dentro del tablero
-                # Si la casilla está vacía, es un movimiento válido
-                if board[new_row][new_col] is None:
+            if 0 <= new_row < 8 and 0 <= new_col < 8:
+                target = board[new_row][new_col]
+                if target is None:
                     possible_moves.append((new_row, new_col))
-                # Si la casilla contiene una pieza del color opuesto, es un movimiento válido y se detiene aquí
-                elif game_state == 'pvp' and board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
+                elif target.startswith("black" if piece.startswith("white") else "white"):
                     possible_moves.append((new_row, new_col))
                     break
-                else:  # Si la casilla contiene una pieza del mismo color, se detiene aquí
+                else:
                     break
-            else:  # Si la nueva posición está fuera del tablero, se detiene aquí
+            else:
                 break
 
     return possible_moves
@@ -195,14 +193,15 @@ def get_king_moves(piece, possible_moves, row, col, board, game_state):
     Esta función determina los movimientos posibles para un rey, considerando su color y posición en el tablero.
     Los reyes pueden moverse una casilla en cualquier dirección (horizontal, vertical o diagonal), siempre y cuando no haya otra pieza del mismo color en el camino.
     """
-    # Si es modo PvC y es una pieza negra, no permitir movimientos
     if game_state == 'pvc' and piece.startswith("black"):
         return possible_moves
 
     for move in king_moves:
         new_row, new_col = row + move[0], col + move[1]
         if 0 <= new_row < 8 and 0 <= new_col < 8:
-            if board[new_row][new_col] is None and game_state == 'pvp' or board[new_row][new_col].startswith("black" if piece.startswith("white") else "white"):
+            target = board[new_row][new_col]
+            if (target is None or
+                    target.startswith("black" if piece.startswith("white") else "white")):
                 possible_moves.append((new_row, new_col))
 
     return possible_moves
