@@ -1,3 +1,5 @@
+from button import Button
+
 # Dimensiones
 BOARD_SIZE = 800
 TIME_HEIGHT = 40  # Espacio para el tiempo
@@ -23,6 +25,16 @@ button_width = 280
 button_height = 60
 center_x = WIDTH // 2 - button_width // 2
 
+pvp_button = Button(center_x, HEIGHT//2 - button_height - 20,
+                    button_width, button_height,
+                    "JUGADOR vs JUGADOR",
+                    primary_color, secondary_color)
+
+pvc_button = Button(center_x, HEIGHT//2 + 20,
+                    button_width, button_height,
+                    "JUGADOR vs CPU",
+                    primary_color, secondary_color)
+
 # MOVES (Movimientos posibles para las piezas)
 knight_moves = [
     (2, 1), (2, -1), (-2, 1), (-2, -1),
@@ -44,28 +56,36 @@ INITIAL_TIME = 600  # 10 minutos
 DIFFICULTY = {
     'FÁCIL': {
         'name': "PRINCIPIANTE",
-        'depth': 2,
+        'skill_level': 5,
+        'depth': 5,
+        'time': 1000,
         'description': "Para jugadores nuevos",
         'color': (46, 139, 87),  # Verde suave
         'hover_color': (32, 178, 170)  # Turquesa
     },
     'MEDIO': {
         'name': "INTERMEDIO",
-        'depth': 3,
+        'skill_level': 10,
+        'depth': 10,
+        'time': 2000,
         'description': "Para jugadores casuales",
         'color': (25, 25, 112),  # Azul marino
         'hover_color': (65, 105, 225)  # Azul real
     },
     'DIFÍCIL': {
         'name': "AVANZADO",
-        'depth': 4,
+        'skill_level': 15,
+        'depth': 15,
+        'time': 3000,
         'description': "Para jugadores experimentados",
         'color': (139, 0, 0),  # Rojo oscuro
         'hover_color': (178, 34, 34)  # Rojo fuego
     },
     'MAESTRO': {
         'name': "MAESTRO",
-        'depth': 5,
+        'skill_level': 20,
+        'depth': 20,
+        'time': 4000,
         'description': "Para expertos",
         'color': (72, 61, 139),  # Violeta oscuro
         'hover_color': (106, 90, 205)  # Violeta claro
