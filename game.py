@@ -1,5 +1,5 @@
 import pygame
-from settings import BOARD_SIZE, HEIGHT, ROWS, COLS, SQUARE_SIZE, WHITE, BLACK, DIFFICULTY, MARGIN_TOP, WIDTH, TIME_HEIGHT, background_color
+from settings import BOARD_SIZE, HEIGHT, MOVEMENT_BOX, ROWS, COLS, SQUARE_SIZE, WHITE, BLACK, DIFFICULTY, MARGIN_TOP, WIDTH, TIME_HEIGHT, background_color
 from utils import load_images
 from movements import *
 
@@ -79,6 +79,56 @@ class ChessGame:
         self.game_over = False
         self.waiting_for_cpu = False
         self.last_move_time = pygame.time.get_ticks()
+
+        self.cpu_start_pos = None
+        self.cpu_end_pos = None
+        self.cpu_move_time = 0
+
+    def make_cpu_move(self):
+        """
+        Realiza el movimiento de la CPU y pinta el resaltado
+        """
+        if not self.ai_engine or self.current_turn != 'black':
+            return
+
+        # Obtener el mejor movimiento
+        best_move = self.ai_engine.get_best_move([])
+
+        if best_move:
+            # Convertir notación UCI a coordenadas del tablero
+            start_file = ord(best_move[0]) - ord('a')
+            start_rank = 8 - int(best_move[1])
+            end_file = ord(best_move[2]) - ord('a')
+            end_rank = 8 - int(best_move[3])
+
+            # Pintar cuadrado en posición inicial
+            pygame.draw.rect(self.screen, (255, 150, 150),
+                             (start_file * SQUARE_SIZE,
+                             start_rank * SQUARE_SIZE + MARGIN_TOP,
+                             SQUARE_SIZE, SQUARE_SIZE))
+
+            # Pintar cuadrado en posición final
+            pygame.draw.rect(self.screen, (255, 150, 150),
+                             (end_file * SQUARE_SIZE,
+                             end_rank * SQUARE_SIZE + MARGIN_TOP,
+                             SQUARE_SIZE, SQUARE_SIZE))
+
+            # Redibujar la pieza en la posición final
+            piece = self.board[start_rank][start_file]
+            if piece:
+                self.screen.blit(
+                    self.pieces_images[piece],
+                    (end_file * SQUARE_SIZE,
+                     end_rank * SQUARE_SIZE + MARGIN_TOP))
+
+            # Actualizar el display para mostrar los cambios
+            pygame.display.update()
+
+            # Pequeña pausa para que se vea el efecto
+            pygame.time.wait(1000)
+
+            # Realizar el movimiento
+            self.move_piece((start_rank, start_file), (end_rank, end_file))
 
     def create_start_board(self):
         """
@@ -176,27 +226,6 @@ class ChessGame:
         else:
             self.waiting_for_player = True
 
-    def make_cpu_move(self):
-        """
-        Realiza el movimiento de la CPU según la dificultad.
-        """
-        if not self.ai_engine or self.current_turn != 'black':
-            return
-
-        best_move = self.ai_engine.get_best_move([])
-
-        if best_move:
-            # Convertir notación UCI a coordenadas del tablero
-            start_file = ord(best_move[0]) - ord('a')
-            start_rank = 8 - int(best_move[1])
-            end_file = ord(best_move[2]) - ord('a')
-            end_rank = 8 - int(best_move[3])
-
-            # Realizar el movimiento después de un pequeño retraso
-            # Esperar 500ms para que el movimiento sea visible
-            pygame.time.wait(500)
-            self.move_piece((start_rank, start_file), (end_rank, end_file))
-
     def get_possible_moves(self, piece, position):
         """
         Obtiene los movimientos posibles para una pieza.
@@ -247,6 +276,7 @@ class ChessGame:
         for row in range(ROWS):
             for col in range(COLS):
                 color = WHITE if (row + col) % 2 == 0 else BLACK
+
                 pygame.draw.rect(self.screen, color,
                                  (col * SQUARE_SIZE,
                                   row * SQUARE_SIZE + MARGIN_TOP,
@@ -317,6 +347,12 @@ class ChessGame:
 
         # Actualizar tiempos
         self.update_time()
+
+        # Limpiar el resaltado después de 3 segundos
+        if self.cpu_move_time and current_time - self.cpu_move_time > 3000:
+            self.cpu_start_pos = None
+            self.cpu_end_pos = None
+            self.cpu_move_time = 0
 
         # Verificar si el juego terminó por tiempo
         if self.white_time <= 0:

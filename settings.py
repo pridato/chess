@@ -91,3 +91,8 @@ DIFFICULTY = {
         'hover_color': (106, 90, 205)  # Violeta claro
     }
 }
+
+
+# COLORES ia
+
+MOVEMENT_BOX = (255, 150, 150)
