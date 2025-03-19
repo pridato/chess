@@ -2,6 +2,7 @@ import pygame
 from settings import BOARD_SIZE, HEIGHT, MOVEMENT_BOX, ROWS, COLS, SQUARE_SIZE, WHITE, BLACK, DIFFICULTY, MARGIN_TOP, WIDTH, TIME_HEIGHT, background_color
 from utils import load_images
 from movements import *
+import pygame.mixer
 
 
 class ChessGame:
@@ -83,6 +84,9 @@ class ChessGame:
         self.cpu_start_pos = None
         self.cpu_end_pos = None
         self.cpu_move_time = 0
+
+        pygame.mixer.init()
+        self.move_sound = pygame.mixer.Sound('assets/sounds/move.wav')
 
     def make_cpu_move(self):
         """
@@ -219,6 +223,8 @@ class ChessGame:
         # Realizar el movimiento normal
         self.board[end_row][end_col] = moving_piece
         self.board[start_row][start_col] = None
+
+        self.move_sound.play()
 
         # Si estamos en modo PvC, actualizar el estado del motor de IA
         if self.game_mode == 'pvc' and self.ai_engine:
