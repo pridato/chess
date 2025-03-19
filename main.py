@@ -13,19 +13,20 @@ def main():
     while True:
         if game_state == 'menu':
             # manejamos el menú y creamos un estado
+            difficulty_buttons = create_difficulty_buttons()
+
             new_state = handle_menu(screen)
             if new_state:
                 # creamos un estado de juego (al pasar el menú)
                 game_state = new_state
         elif game_state == 'difficulty_select':
-
-            difficulty_buttons = create_difficulty_buttons()
             new_state, new_game = handle_difficulty_select(
                 screen, difficulty_buttons)
             if new_state:
                 game_state = new_state
                 if new_game:
                     game = new_game
+
         else:  # Estados de juego (pvp o pvc)
             # manejamos el juego hasta su reinicio
             new_state = handle_game(screen, game)
@@ -44,12 +45,16 @@ def handle_game(screen, game):
     # Actualizar estado del juego
     game.update()
 
-    # Dibujar el estado actual
+    # Dibujar elementos base
     game.draw_board()
+
+    # Dibujar efectos visuales de la CPU
+
+    # Dibujar piezas y otros elementos
     game.draw_pieces()
     game.draw_time()
 
-    # si hay movimientos resaltados, dibujarlos
+    # Dibujar movimientos posibles si hay pieza seleccionada
     if hasattr(game, 'highlighted_moves') and game.highlighted_moves:
         draw_highlighted_moves(screen, game.highlighted_moves)
 
