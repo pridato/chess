@@ -205,6 +205,7 @@ class ChessGame:
         end_row, end_col = end_pos
 
         moving_piece = self.board[start_row][start_col]
+        captured_piece = self.board[end_row][end_col]
 
         # Verificar si es un enroque
         if moving_piece and "king" in moving_piece:
@@ -226,6 +227,25 @@ class ChessGame:
 
         self.move_sound.play()
 
+        if captured_piece and 'king' in captured_piece:
+            # Realizar el movimiento
+            self.board[end_row][end_col] = moving_piece
+            self.board[start_row][start_col] = None
+
+            # Reproducir sonido de movimiento
+            self.move_sound.play()
+
+            # Determinar ganador y terminar partida
+            winner = "Blancas" if moving_piece.startswith(
+                'white') else "Negras"
+            print(f"¡Partida terminada! Ganan las {winner}")
+
+            # Mostrar mensaje en pantalla
+            self.show_winner_message(winner)
+
+            self.game_over = True
+            return
+
         # Si estamos en modo PvC, actualizar el estado del motor de IA
         if self.game_mode == 'pvc' and self.ai_engine:
             move_uci = self.ai_engine.convert_to_uci(start_pos, end_pos)
@@ -234,6 +254,28 @@ class ChessGame:
         # Cambiar turno
         self.current_turn = 'black' if self.current_turn == 'white' else 'white'
         self.last_time_update = pygame.time.get_ticks()
+
+    def show_winner_message(self, winner):
+        """
+        Muestra un mensaje con el ganador en la pantalla
+        """
+        # Crear una superficie semitransparente para el fondo del mensaje
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.fill((0, 0, 0))
+        overlay.set_alpha(128)
+        self.screen.blit(overlay, (0, 0))
+
+        # Crear el mensaje
+        font = pygame.font.Font(None, 74)
+        text = font.render(f"¡Ganan las {winner}!", True, (255, 255, 255))
+        text_rect = text.get_rect(center=(WIDTH//2, HEIGHT//2))
+
+        # Mostrar el mensaje
+        self.screen.blit(text, text_rect)
+        pygame.display.flip()
+
+        # Esperar unos segundos
+        pygame.time.wait(5000)
 
     def switch_turn(self):
         """
